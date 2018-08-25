@@ -192,7 +192,7 @@ uint16_t stationNumber;
                        
                        
                        
-                        if ((byte) announceDecodificador.getReplayType() == 0) {
+                        if ((byte) announceDecodificador.getReplayType() == 1) {
                             System.out.println("ANNOUNCE RECEBIDO COM SUCESSO");
                             System.out.println("Nome da Música escolhida:" + announceDecodificador.getSongName().toString());
                         }
