@@ -57,7 +57,7 @@ uint16_t stationNumber;
        setStation.setCommandType1((byte)1);
        Serializacao tr= new Serializacao();
         try {
-            Socket cliente = new Socket("localhost", 12333);
+            Socket cliente = new Socket("192.168.0.147", 12333);
             System.out.println("ENVIANDO COMANDO HELLO");
             DataOutputStream enviar = new DataOutputStream(cliente.getOutputStream());
             //System.out.println("CommandType");
@@ -217,11 +217,10 @@ uint16_t stationNumber;
             
             
 
-        } catch (IOException ex
-
-    
-        ) {
-            Logger.getLogger(Snowcast_control.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex ) {
+            
+            System.out.println("O servidor está fora do ar");
+         //   Logger.getLogger(Snowcast_control.class.getName()).log(Level.SEVERE, null, ex);
     }
     catch (ClassNotFoundException ex
 
