@@ -15,6 +15,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -142,7 +143,8 @@ uint16_t stationNumber;
             
             if ((byte) announce.getReplayType()==1) {
                 System.out.println("ANNOUNCE RECEBIDO COM SUCESSO");
-                System.out.println("Nome da Música escolhida:" + announce.getSongName().toString());
+                
+                System.out.println("Nome da Música escolhida:" + String.valueOf(announce.getSongName()));
             }
 
             boolean controlador = true;
@@ -194,7 +196,7 @@ uint16_t stationNumber;
                        
                         if ((byte) announceDecodificador.getReplayType() == 1) {
                             System.out.println("ANNOUNCE RECEBIDO COM SUCESSO");
-                            System.out.println("Nome da Música escolhida:" + announceDecodificador.getSongName().toString());
+                            System.out.println("Nome da Música escolhida:" + String.valueOf(announceDecodificador.getSongName()));
                         }
                 
 
