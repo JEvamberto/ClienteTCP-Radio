@@ -89,7 +89,7 @@ uint16_t stationNumber;
               Welcome welcome = (Welcome)tr.deserialize(dadosWelcome);
               
               
-              
+              char g='1';
               
             if (welcome.getReplyType()==0) {
 
