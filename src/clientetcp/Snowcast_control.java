@@ -102,7 +102,7 @@ uint16_t stationNumber;
 
             } else if (comando instanceof InvalidCommand) {
                 InvalidCommand icommand = (InvalidCommand) comando;
-                
+
                 if (icommand.getInvalidreplyType() == 2) {
                     System.out.println(String.valueOf(icommand.getInvalidreplyString()));
                     System.out.println("Fechando a conexão com o servidor...");
@@ -140,12 +140,24 @@ uint16_t stationNumber;
 
             receberAnnounce.read(dadosAnnounce, 0, tamanho2);
 
-            Announce announce = (Announce) tr.deserialize(dadosAnnounce);
+            Object comandoAnnounceInvalid = tr.deserialize(dadosAnnounce);
 
-            if ((byte) announce.getReplayType() == 1) {
-                System.out.println("ANNOUNCE RECEBIDO COM SUCESSO");
+            if (comandoAnnounceInvalid instanceof InvalidCommand) {
 
-                System.out.println("Nome da Música escolhida:" + String.valueOf(announce.getSongName()));
+                InvalidCommand comandoInvalidoA = new InvalidCommand();
+
+                System.out.println(comandoInvalidoA.getInvalidreplyString());
+                cliente.close();
+                System.exit(0);
+
+            } else if (comandoAnnounceInvalid instanceof Announce) {
+                Announce announce = (Announce) tr.deserialize(dadosAnnounce);
+                if ((byte) announce.getReplayType() == 1) {
+                    System.out.println("ANNOUNCE RECEBIDO COM SUCESSO");
+
+                    System.out.println("Nome da Música escolhida:" + String.valueOf(announce.getSongName()));
+                }
+
             }
 
             boolean controlador = true;
@@ -184,11 +196,26 @@ uint16_t stationNumber;
 
                         receberAnnounce.read(dadosRAnnounce, 0, tamanho3);
 
-                        Announce announceDecodificador = (Announce) tr.deserialize(dadosRAnnounce);
+                        Object comandoAnnInvalid = tr.deserialize(dadosRAnnounce);
 
-                        if ((byte) announceDecodificador.getReplayType() == 1) {
-                            System.out.println("ANNOUNCE RECEBIDO COM SUCESSO");
-                            System.out.println("Nome da Música escolhida:" + String.valueOf(announceDecodificador.getSongName()));
+                        if (comandoAnnInvalid instanceof InvalidCommand) {
+                            InvalidCommand comandoInvalidodd = (InvalidCommand) tr.deserialize(dadosRAnnounce);
+                            if (comandoInvalidodd.getInvalidreplyType() == 2) {
+
+                                System.out.println(comandoInvalidodd.getInvalidreplyString());
+                                cliente.close();
+                                System.exit(0);
+
+                            }
+
+                        } else if (comandoAnnInvalid instanceof Announce) {
+
+                            Announce announceDecodificador = (Announce) tr.deserialize(dadosRAnnounce);
+
+                            if ((byte) announceDecodificador.getReplayType() == 1) {
+                                System.out.println("ANNOUNCE RECEBIDO COM SUCESSO");
+                                System.out.println("Nome da Música escolhida:" + String.valueOf(announceDecodificador.getSongName()));
+                            }
                         }
 
                         break;
