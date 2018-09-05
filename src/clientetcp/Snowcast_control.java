@@ -113,7 +113,12 @@ uint16_t stationNumber;
             }
 
             char g = '1';
-
+              Scanner teclado = new Scanner(System.in);
+              DataOutputStream enviarSetStation ;
+              DataInputStream receberAnnounce;
+              
+              
+/*
             System.out.println("Escolha a estação:");
             Scanner teclado = new Scanner(System.in);
 
@@ -158,21 +163,40 @@ uint16_t stationNumber;
                     System.out.println("Nome da Música escolhida:" + String.valueOf(announce.getSongName()));
                 }
 
-            }
+            }*/
 
             boolean controlador = true;
             while (controlador) {
-                System.out.println("1.Trocar estação:");
-                System.out.println("2.Finalizar:");
-                int d = teclado.nextInt();
-
-                switch (d) {
-                    case 1:
-                        System.out.print("Escolha a nova estação:");
-
-                        stationNumber = teclado.nextShort();
-
-                        //setStation
+                System.out.println("Digite um número da estação:");
+                System.out.println("Digite Q para finalizar:");
+                
+                char p=teclado.nextLine().charAt(0);
+                String number=Character.toString(p);
+                
+                //int d = teclado.nextInt();
+                
+                
+                if (p=='Q'||p == 'q') {
+                      System.out.println("Finalizando....");
+                       DataOutputStream finalizar= new DataOutputStream(cliente.getOutputStream());
+                        Finalizar fecharConexao= new Finalizar();
+                       
+                       byte dadosFinal []= tr.serialize(fecharConexao);
+                       
+                       finalizar.writeInt(dadosFinal.length);
+                       finalizar.write(dadosFinal);
+                       finalizar.flush();
+                       
+                       
+                        
+                        cliente.close();
+                        System.exit(0);
+                    
+                }else  {
+                        
+                    stationNumber= (short)Integer.parseInt(number);
+                    
+                       //setStation
                         enviarSetStation = null;
 
                         enviarSetStation = new DataOutputStream(cliente.getOutputStream());
@@ -218,16 +242,41 @@ uint16_t stationNumber;
                             }
                         }
 
+                    
+                    
+                    
+                    
+                    
+                }/*
+
+                switch (d) {
+                    case 1:
+                        System.out.print("Escolha a nova estação:");
+
+                        stationNumber = teclado.nextShort();
+
+                     
                         break;
 
                     case 2:
                         System.out.println("Finalizando....");
+                       DataOutputStream finalizar= new DataOutputStream(cliente.getOutputStream());
+                        Finalizar fecharConexao= new Finalizar();
+                       
+                       byte dadosFinal []= tr.serialize(fecharConexao);
+                       
+                       finalizar.writeInt(dadosFinal.length);
+                       finalizar.write(dadosFinal);
+                       finalizar.flush();
+                       
+                       
+                        
                         cliente.close();
                         System.exit(0);
 
                         break;
 
-                }
+                }*/
             }
 
         } catch (IOException ex) {
