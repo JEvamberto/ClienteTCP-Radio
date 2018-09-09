@@ -5,17 +5,10 @@
  */
 package clientetcp;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
 import java.net.Socket;
-import java.util.Arrays;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,10 +22,8 @@ import servidor.Welcome;
  */
 public class Snowcast_control {
 
-
     static Hello hello = new Hello();
 
-    
     static SetStation setStation = new SetStation();
 
     static short stationNumber;
@@ -41,26 +32,29 @@ public class Snowcast_control {
     static Serializacao tr;
 
     public static void conectar() {
-        
-        
-        
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                if (!cliente.isClosed()) {
+                    finalizar();
+                }
+                
+            }
+        });
+
         hello.setCommandType((byte) 0);
         hello.setUpdPort((short) 12344);
-        
-      
+
         setStation.setCommandType1((byte) 1);
-        
-         tr = new Serializacao();
-        
-        
+
+        tr = new Serializacao();
+
         try {
 
             cliente = new Socket("192.168.0.147", 12333);
             System.out.println("ENVIANDO COMANDO HELLO");
             DataOutputStream enviar = new DataOutputStream(cliente.getOutputStream());
-            //System.out.println("CommandType");
-
-            // System.out.println(updPort);
             byte[] dadosHello = tr.serialize(hello);
 
             enviar.writeInt(dadosHello.length);
@@ -69,14 +63,12 @@ public class Snowcast_control {
 
             DataInputStream receber = new DataInputStream(cliente.getInputStream());
 
-            //Servidor enviando para o cliente(handShake)
             int tamanho = receber.readInt();
 
             byte[] dadosWelcome = new byte[tamanho];
 
             receber.read(dadosWelcome, 0, tamanho);
             Object comando = tr.deserialize(dadosWelcome);
-          
 
             if (comando instanceof Welcome) {
 
@@ -103,121 +95,111 @@ public class Snowcast_control {
                 if (icommand.getInvalidreplyType() == 2) {
                     System.out.println(String.valueOf(icommand.getInvalidreplyString()));
                     System.out.println("Fechando a conexão com o servidor...");
-                   finalizar();
+                    finalizar();
                 }
 
             }
 
             char g = '1';
-              Scanner teclado = new Scanner(System.in);
-              DataOutputStream enviarSetStation ;
-              DataInputStream receberAnnounce;
-              
-              
-
+            Scanner teclado = new Scanner(System.in);
+            DataOutputStream enviarSetStation;
+            DataInputStream receberAnnounce;
 
             boolean controlador = true;
             while (controlador) {
                 System.out.println("Digite um número da estação:");
                 System.out.println("Digite Q para finalizar:");
+
+                String number = teclado.nextLine();
                 
-                char p=teclado.nextLine().charAt(0);
-                String number=Character.toString(p);
-                
-             
-                
-                
-                if (p=='Q'||p == 'q') {
+
+                if (number.equals("Q") || number.equals("q") ) {
                     finalizar();
-                    
-                }else  {
-                        
-                    stationNumber= (short)Integer.parseInt(number);
-                    
-                       //setStation
-                        enviarSetStation = null;
 
-                        enviarSetStation = new DataOutputStream(cliente.getOutputStream());
+                } else {
+                  
 
-                        setStation.setStationNumber(stationNumber);
+                    stationNumber = (short) Integer.parseInt(number);
 
-                        byte[] dadosESetStation = tr.serialize(setStation);
-                        enviarSetStation.writeInt(dadosESetStation.length);
-                        enviarSetStation.write(dadosESetStation);
-                        enviarSetStation.flush();
+                    //setStation
+                    enviarSetStation = null;
 
-                        System.out.println("");
-                        //Enviar annunceo
+                    enviarSetStation = new DataOutputStream(cliente.getOutputStream());
 
-                        receberAnnounce = null;
+                    setStation.setStationNumber(stationNumber);
 
-                        receberAnnounce = new DataInputStream(cliente.getInputStream());
+                    byte[] dadosESetStation = tr.serialize(setStation);
+                    enviarSetStation.writeInt(dadosESetStation.length);
+                    enviarSetStation.write(dadosESetStation);
+                    enviarSetStation.flush();
 
-                        int tamanho3 = receberAnnounce.readInt();
-                        byte[] dadosRAnnounce = new byte[tamanho3];
+                    System.out.println("");
+                    //Enviar annunceo
 
-                        receberAnnounce.read(dadosRAnnounce, 0, tamanho3);
+                    receberAnnounce = null;
 
-                        Object comandoAnnInvalid = tr.deserialize(dadosRAnnounce);
+                    receberAnnounce = new DataInputStream(cliente.getInputStream());
 
-                        if (comandoAnnInvalid instanceof InvalidCommand) {
-                            InvalidCommand comandoInvalidodd = (InvalidCommand) tr.deserialize(dadosRAnnounce);
-                            if (comandoInvalidodd.getInvalidreplyType() == 2) {
+                    int tamanho3 = receberAnnounce.readInt();
+                    byte[] dadosRAnnounce = new byte[tamanho3];
 
-                                System.out.println(comandoInvalidodd.getInvalidreplyString());
-                                finalizar();
+                    receberAnnounce.read(dadosRAnnounce, 0, tamanho3);
 
-                            }
+                    Object comandoAnnInvalid = tr.deserialize(dadosRAnnounce);
 
-                        } else if (comandoAnnInvalid instanceof Announce) {
+                    if (comandoAnnInvalid instanceof InvalidCommand) {
+                        InvalidCommand comandoInvalidodd = (InvalidCommand) tr.deserialize(dadosRAnnounce);
+                        if (comandoInvalidodd.getInvalidreplyType() == 2) {
 
-                            Announce announceDecodificador = (Announce) tr.deserialize(dadosRAnnounce);
+                            System.out.println(comandoInvalidodd.getInvalidreplyString());
+                            finalizar();
 
-                            if ((byte) announceDecodificador.getReplayType() == 1) {
-                                System.out.println("ANNOUNCE RECEBIDO COM SUCESSO");
-                                System.out.println("Nome da Música escolhida:" + String.valueOf(announceDecodificador.getSongName()));
-                            }
                         }
 
-                    
-                    
-                    
-                    
-                    
+                    } else if (comandoAnnInvalid instanceof Announce) {
+
+                        Announce announceDecodificador = (Announce) tr.deserialize(dadosRAnnounce);
+
+                        if ((byte) announceDecodificador.getReplayType() == 1) {
+                            System.out.println("ANNOUNCE RECEBIDO COM SUCESSO");
+                            System.out.println("Nome da Música escolhida:" + String.valueOf(announceDecodificador.getSongName()));
+                        }
+                    }
+
                 }
             }
 
         } catch (IOException ex) {
 
             System.out.println("O servidor está fora do ar");
-            //   Logger.getLogger(Snowcast_control.class.getName()).log(Level.SEVERE, null, ex);
+       
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(Snowcast_control.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-public static void finalizar(){
-      System.out.println("Finalizando....");
-                       DataOutputStream finalizar;
+
+    public static void finalizar() {
+        System.out.println("Finalizando....");
+        DataOutputStream finalizar;
         try {
             finalizar = new DataOutputStream(cliente.getOutputStream());
-            
-                        Finalizar fecharConexao= new Finalizar();
-                       
-                       byte dadosFinal []= tr.serialize(fecharConexao);
-                       
-                       finalizar.writeInt(dadosFinal.length);
-                       finalizar.write(dadosFinal);
-                       finalizar.flush();
-                       
-                       
-                        
-                        cliente.close();
-                        System.exit(0);
+
+            Finalizar fecharConexao = new Finalizar();
+
+            byte dadosFinal[] = tr.serialize(fecharConexao);
+
+            finalizar.writeInt(dadosFinal.length);
+            finalizar.write(dadosFinal);
+            finalizar.flush();
+
+            cliente.close();
+            System.exit(0);
         } catch (IOException ex) {
             Logger.getLogger(Snowcast_control.class.getName()).log(Level.SEVERE, null, ex);
         }
-    
-}
+
+    }
+
     public static void main(String[] args) {
         conectar();
     }
