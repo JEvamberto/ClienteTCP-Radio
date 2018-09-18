@@ -31,20 +31,10 @@ public class Snowcast_control {
     static Socket cliente;
     static Serializacao tr;
 
-    public static void conectar() {
-
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                if (!cliente.isClosed()) {
-                    finalizar();
-                }
-                
-            }
-        });
+    public static void conectar(String ipServidor,String portaServidor, String portaUDP) {
 
         hello.setCommandType((byte) 0);
-        hello.setUpdPort((short) 12344);
+        hello.setUpdPort((short) Integer.parseInt(portaUDP));
 
         setStation.setCommandType1((byte) 1);
 
@@ -52,7 +42,17 @@ public class Snowcast_control {
 
         try {
 
-            cliente = new Socket("192.168.0.147", 12333);
+            cliente = new Socket(ipServidor, Integer.parseInt(portaServidor));
+
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
+                public void run() {
+                    if (!cliente.isClosed()) {
+                        finalizar();
+                    }
+
+                }
+            });
             System.out.println("ENVIANDO COMANDO HELLO");
             DataOutputStream enviar = new DataOutputStream(cliente.getOutputStream());
             byte[] dadosHello = tr.serialize(hello);
@@ -100,7 +100,7 @@ public class Snowcast_control {
 
             }
 
-            char g = '1';
+           
             Scanner teclado = new Scanner(System.in);
             DataOutputStream enviarSetStation;
             DataInputStream receberAnnounce;
@@ -111,13 +111,11 @@ public class Snowcast_control {
                 System.out.println("Digite Q para finalizar:");
 
                 String number = teclado.nextLine();
-                
 
-                if (number.equals("Q") || number.equals("q") ) {
-                    finalizar();
+                if (number.equals("Q") || number.equals("q")) {
+                    System.exit(0);
 
                 } else {
-                  
 
                     stationNumber = (short) Integer.parseInt(number);
 
@@ -152,7 +150,7 @@ public class Snowcast_control {
                         if (comandoInvalidodd.getInvalidreplyType() == 2) {
 
                             System.out.println(comandoInvalidodd.getInvalidreplyString());
-                            finalizar();
+                           System.exit(0);
 
                         }
 
@@ -172,9 +170,10 @@ public class Snowcast_control {
         } catch (IOException ex) {
 
             System.out.println("O servidor está fora do ar");
-       
+
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Snowcast_control.class.getName()).log(Level.SEVERE, null, ex);
+           
+         Logger.getLogger(Snowcast_control.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -193,15 +192,30 @@ public class Snowcast_control {
             finalizar.flush();
 
             cliente.close();
-            System.exit(0);
+            
         } catch (IOException ex) {
-            Logger.getLogger(Snowcast_control.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Não foi possível enviar o finalizar Servidor está fora do ar");
+            //Logger.getLogger(Snowcast_control.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
 
     public static void main(String[] args) {
-        conectar();
+
+        String ipServidor = null, portaServidor = null, portaUDP = null;
+
+        if (args.length == 0) {
+            System.out.println("Digite os parâmetros válidos");
+
+        } else {
+
+            ipServidor = args[0];
+            portaServidor = args[1];
+            portaUDP = args[2];
+
+        }
+
+        conectar(ipServidor,portaServidor,portaUDP);
     }
 
 }

@@ -15,7 +15,7 @@ public class Hello implements Serializable {
     
     
      byte commandType = 0;
-     short updPort = 12344;
+     short updPort =0;
 
     public byte getCommandType() {
         return commandType;
