@@ -205,8 +205,8 @@ public class Snowcast_control {
         String ipServidor = null, portaServidor = null, portaUDP = null;
 
         if (args.length == 0) {
-            System.out.println("Digite os parâmetros válidos");
-
+            System.out.println("Digite os parâmetros válidos <ipServidor> <portaServidor> <portaUDP>");
+            System.exit(0);
         } else {
 
             ipServidor = args[0];
