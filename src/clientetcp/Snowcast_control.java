@@ -194,7 +194,7 @@ public class Snowcast_control {
             cliente.close();
             
         } catch (IOException ex) {
-            System.out.println("Não foi possível enviar o finalizar Servidor está fora do ar");
+            System.out.println("Não foi possível enviar o comando finalizar, Servidor está fora do ar");
             //Logger.getLogger(Snowcast_control.class.getName()).log(Level.SEVERE, null, ex);
         }
 
