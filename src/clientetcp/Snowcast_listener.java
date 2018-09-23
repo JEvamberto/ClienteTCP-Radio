@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-//package clienteUPD;
+package clientetcp;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -21,9 +21,12 @@ import javazoom.jl.player.Player;
  */
 public class Snowcast_listener implements Runnable{
 
-
-    public Snowcast_listener(){
-        
+    private short porta;
+    
+    public Snowcast_listener(short porta){
+        this.porta=porta;
+        Thread t= new Thread(this);
+        t.start();
     }
 
  
@@ -35,7 +38,7 @@ public class Snowcast_listener implements Runnable{
 
             int pacote = 50000;
         
-            DatagramSocket receber = new DatagramSocket(12344);
+            DatagramSocket receber = new DatagramSocket(porta);
 
             byte[] myBuffer = new byte[pacote];
 
@@ -57,9 +60,7 @@ public class Snowcast_listener implements Runnable{
          
         } catch (SocketException ex) {
             Logger.getLogger(Snowcast_listener.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(Snowcast_listener.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (JavaLayerException ex) {
+        } catch (IOException | JavaLayerException ex) {
             Logger.getLogger(Snowcast_listener.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

@@ -111,6 +111,7 @@ public class Snowcast_control {
                 System.out.println("Digite Q para finalizar:");
 
                 String number = teclado.nextLine();
+              
 
                 if (number.equals("Q") || number.equals("q")) {
                     System.exit(0);
@@ -214,7 +215,9 @@ public class Snowcast_control {
             portaUDP = args[2];
 
         }
-
+        
+        
+        //Snowcast_listener  escutador=new Snowcast_listener((short) Integer.parseInt(portaUDP));
         conectar(ipServidor,portaServidor,portaUDP);
     }
 
